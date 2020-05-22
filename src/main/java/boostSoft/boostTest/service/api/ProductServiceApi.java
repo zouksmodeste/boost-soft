@@ -19,4 +19,5 @@ public interface ProductServiceApi {
 	public abstract HttpEntity<? extends Object> findByOrderByDateCreationDesc();
 	public abstract HttpEntity<? extends Object> findByOrderByDateCreationAsc();
 	public abstract HttpEntity<? extends Object> findByPrice(float price);
+	public abstract HttpEntity<? extends Object> incrementQuantityProduct(String title, int quantity);
 }

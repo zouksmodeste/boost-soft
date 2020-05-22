@@ -8,6 +8,7 @@ public enum ProductStatus {
 	PRET("PRET"),
 	RESERVE("RESERVE"),
 	DELETED("DELETED"),
+	INSUFFISANT("INSUFFISANT"),
 	VENDU("VENDU");
 	
 	private String statut;

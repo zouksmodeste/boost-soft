@@ -36,22 +36,32 @@ public class UserServiceImpl implements UserServiceApi {
 		try {
 		    final String messages = "Your activation code is :"; // message personnalise pour envoie du code de validatiom
 			
-			// enregistrement d'un utilisateur
-			Random r = new Random();
-			user.setValidate(false);
-			user.setUserStatus(UserStatus.AWAITINGVALIDATION.getStatut());
-			user.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
-			user.setValidateMessage(r.nextInt(10000 - 1000));
-			User currentUser = userRepository.save(user);
+		    if (user.getName()==null || user.getSubName()==null || user.getUserName()==null || user.getPassWord()==null || user.getMail()==null || user.getPhoneNumber()==null || user.getUserType()==null) {
+		    	return new ResponseEntity<String>("Please enter informations in blank places", HttpStatus.BAD_REQUEST); // renvoie un message d'erreur avec une reponse http
+			}else {
+				// enregistrement d'un utilisateur
+				Random r = new Random();
+				user.setValidate(false);
+				user.setUserStatus(UserStatus.AWAITINGVALIDATION.getStatut());
+				user.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
+				user.setValidateMessage(r.nextInt(10000 - 1000));
+				User currentUser = userRepository.save(user);
 
+				
+				// envoie du code de validation du compte a l'utilisateur par message
+				PhoneNumber to = new PhoneNumber(user.getPhoneNumber());
+				PhoneNumber from = new PhoneNumber(twilioConfiguration.getTrialNumber());
+				String message = messages;
+				MessageCreator creator = Message.creator(to, from, message + user.getValidateMessage());
+				creator.create();
+				
+				
+				// envoie du mail de bienvenue a l'utilisateur
+				String text = String.format(template.getText());
+				emailServiceImpl.sendSimpleMessage("boost.test.v1@gmail.com", user.getMail(), "Welcome", text);
+				return new ResponseEntity<User>(currentUser, HttpStatus.CREATED); // renvoie l'utilisateur enregistre avec un code http
+			}
 			
-
-			
-			
-			// envoie du mail de bienvenue a l'utilisateur
-			String text = String.format(template.getText());
-			emailServiceImpl.sendSimpleMessage("boost.test.v1@gmail.com", user.getMail(), "Welcome", text);
-			return new ResponseEntity<User>(currentUser, HttpStatus.CREATED); // renvoie l'utilisateur enregistre avec un code http
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message d'erreur avec un code http
 		}
@@ -253,7 +263,12 @@ public class UserServiceImpl implements UserServiceApi {
 			currentUser.setValidateMessage(r.nextInt(10000 - 100));             // creation du nouveau code de validation du compte
 			userRepository.saveAndFlush(currentUser);							// mis a jour de l'utilisateur en base de donnees
 			
-
+			// envoie du code de validation du compte a l'utilisateur par message
+			PhoneNumber to = new PhoneNumber(currentUser.getPhoneNumber());
+			PhoneNumber from = new PhoneNumber(twilioConfiguration.getTrialNumber());
+			String message = messages;
+			MessageCreator creator = Message.creator(to, from, message + currentUser.getValidateMessage());
+			creator.create();
 			
 			return new ResponseEntity<User>(currentUser, HttpStatus.ACCEPTED);  // renvoie de l'utilisateur avec un code http
 		} catch (Exception e) {

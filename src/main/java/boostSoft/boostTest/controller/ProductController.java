@@ -75,4 +75,9 @@ public class ProductController {
 	public HttpEntity<? extends Object> findByPrice(@RequestParam float price){
 		return productServiceApi.findByPrice(price);
 	}
+	
+	@PostMapping("/increment")
+	public HttpEntity<? extends Object> incrementQuantityProduct(@RequestParam String title,@RequestParam int quantity){
+		return productServiceApi.incrementQuantityProduct(title, quantity);
+	}
 }

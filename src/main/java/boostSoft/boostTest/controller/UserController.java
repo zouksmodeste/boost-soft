@@ -23,7 +23,6 @@ public class UserController {
 
 	@Autowired UserServiceApi userServiceApi;
 	
-	
 	// end-point d'enregistrement d'un utilisateur
 	@PostMapping("/register")
 	public HttpEntity<? extends Object> createUser(@RequestBody User user) {

@@ -86,4 +86,9 @@ public class CommandController {
 	public HttpEntity<? extends Object> findByValidator(@RequestParam String validator){
 		return commandServiceApi.findByValidator(validator);
 	}
+	
+	@PutMapping("/update")
+	public HttpEntity<? extends Object> updateCommand(@RequestBody Command command){
+		return commandServiceApi.updateCommand(command);
+	}
 }

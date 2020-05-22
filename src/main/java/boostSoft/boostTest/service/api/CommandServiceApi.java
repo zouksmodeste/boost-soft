@@ -21,4 +21,5 @@ public interface CommandServiceApi {
 	public abstract HttpEntity<? extends Object> findByOrderByDateCreationDesc();
 	public abstract HttpEntity<? extends Object> findByOrderByDateCreationAsc();
 	public abstract HttpEntity<? extends Object> findByValidator(String validator);
+	public abstract HttpEntity<? extends Object> updateCommand(Command command);
 }

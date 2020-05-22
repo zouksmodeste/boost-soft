@@ -22,7 +22,7 @@ public class EmailServiceImpl {
 	@Bean
 	public SimpleMailMessage templateSimpleMessage() {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setText("Welcome !! thank you for registration, now we want to meet all your expectations");
+		message.setText("Welcome !! thank you for registration");
 		return message;
 	}
 

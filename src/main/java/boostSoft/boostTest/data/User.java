@@ -30,6 +30,7 @@ public class User {
 	private String userStatus;
 	private Boolean validate;
 	private Integer validateMessage;
+	private String store;
 	
 	
 	public User() {

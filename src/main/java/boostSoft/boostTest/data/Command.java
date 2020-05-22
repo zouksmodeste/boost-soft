@@ -11,12 +11,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 @Entity
 public class Command {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long commandId;
+	@DateTimeFormat
 	private Date dateCreation;
 	private float totalPrice;
 	private Long customerPhone;

@@ -31,68 +31,56 @@ public class UserController {
 	
 	// end-point de recherche d'un utilisateur par son nom d'utilisateur
 	@GetMapping("/select")
-	public HttpEntity<? extends Object> findByUserName(@RequestParam String username){
-		return userServiceApi.findByUserName(username);
+	public HttpEntity<? extends Object> findByUserName(@RequestParam String username, Principal principal){
+		return userServiceApi.findByUserName(username,principal);
 	}
 	
 	// end-point de suppression d'un utilisateur
 	@DeleteMapping("/delete")
-	public HttpEntity<? extends Object> delete(@RequestParam String name){
-		return userServiceApi.delete(name);
+	public HttpEntity<? extends Object> delete(@RequestParam String username, Principal principal){
+		return userServiceApi.delete(username,principal);
 	}
 	
 	// end-point de mis a jour d'un utilisateur
 	@PutMapping("/update")
-	public HttpEntity<? extends Object> update(@RequestBody User user){
-		return userServiceApi.update(user);
+	public HttpEntity<? extends Object> update(@RequestBody User user, Principal principal){
+		return userServiceApi.update(user,principal);
 	}
 	
 	// end-point de mis a jour du nom d'un utilisateur
 	@PutMapping("/name")
-	public HttpEntity<? extends Object> updateName(@RequestParam int userId,@RequestParam String name){
-		return userServiceApi.updateName(userId, name);
-	}
-	
-	// end-point de mis a jour du prenom d'un utilisateur
-	@PutMapping("/subname")
-	public HttpEntity<? extends Object> updateSubName(@RequestParam int userId,@RequestParam String subname){
-		return userServiceApi.updateSubName(userId, subname);
+	public HttpEntity<? extends Object> updateName(@RequestParam int userId,@RequestParam String name,Principal principal){
+		return userServiceApi.updateName(userId, name, principal);
 	}
 	
 	// end-point de mis a jour du nom d'utilisateur
 	@PutMapping("/username")
-	public HttpEntity<? extends Object> updateUserName(@RequestParam int userId,@RequestParam String username){
-		return userServiceApi.updateUserName(userId, username);
+	public HttpEntity<? extends Object> updateUserName(@RequestParam int userId,@RequestParam String username,Principal principal){
+		return userServiceApi.updateUserName(userId, username, principal);
 	}
 	
 	// end-point de mis a jour du mot de passe d'un utilisateur
 	@PutMapping("/password")
-	public HttpEntity<? extends Object> updatePassWord(@RequestParam int userId,@RequestParam String password){
-		return userServiceApi.updatePassWord(userId, password);
+	public HttpEntity<? extends Object> updatePassWord(@RequestParam int userId,@RequestParam String password,Principal principal){
+		return userServiceApi.updatePassWord(userId, password,principal);
 	}
 	
 	// end-point de mis a jour du nom d'un utilisateur
 	@PutMapping("/mail")
-	public HttpEntity<? extends Object> updateMail(@RequestParam int userId,@RequestParam String mail){
-		return userServiceApi.updateMail(userId, mail);
+	public HttpEntity<? extends Object> updateMail(@RequestParam int userId,@RequestParam String mail,Principal principal){
+		return userServiceApi.updateMail(userId, mail, principal);
 	}
 	
 	// end-point de mis a jour du numero de telephone d'un utilisateur
 	@PutMapping("/phonenumber")
-	public HttpEntity<? extends Object> updatePhoneNumber(@RequestParam int userId,@RequestParam String phonenumber){
-		return userServiceApi.updatePhoneNumber(userId, phonenumber);
-	}
-	
-	// end-point de validation d'un compte utilisateur
-	@PostMapping("/validate")
-	public HttpEntity<? extends Object> validateUser(@RequestParam int validateMessage,@RequestParam String username){
-		return userServiceApi.validateUser(validateMessage, username);
+	public HttpEntity<? extends Object> updatePhoneNumber(@RequestParam int userId,@RequestParam String phonenumber,Principal principal){
+		return userServiceApi.updatePhoneNumber(userId, phonenumber,principal);
 	}
 	
 	// end-point de recherche de tous les utilisateurs
 	@GetMapping("/users")
-	public HttpEntity<? extends Object> findAll(){
-		return userServiceApi.findAll();
+	public HttpEntity<? extends Object> findAll(Principal principal){
+		return userServiceApi.findAll(principal);
 	}
 	
 	// end-point de login d'un utilisateur
@@ -109,31 +97,20 @@ public class UserController {
 	
 	// end-point de recherche d'un utilisateur par son nom
 	@GetMapping("/name")
-	public HttpEntity<? extends Object> findByName(@RequestParam String name){
-		return userServiceApi.findByName(name);
-	}
-	
-	// end-point de verification d'un utilisateur
-	@PostMapping("/verifyaccount")
-	public HttpEntity<? extends Object> verifyAccount(@RequestParam String username){
-		return userServiceApi.verifyAccount(username);
-	}
-	
-	// end-point de reinitialisation du mot de passe d'un utilisateur
-	@PostMapping("/resetpassword")
-	public HttpEntity<? extends Object> resetPasswordUser(@RequestParam String password,@RequestParam int validateMessage,@RequestParam String username){
-		return userServiceApi.resetPasswordUser(password, validateMessage, username);
+	public HttpEntity<? extends Object> findByName(@RequestParam String name,Principal principal){
+		return userServiceApi.findByName(name,principal);
 	}
 	
 	// end-point de blocage d'un utilisateur
 	@PostMapping("/blocked")
-	public HttpEntity<? extends Object> blockedUser(@RequestParam String username){
-		return userServiceApi.blockedUser(username);
+	public HttpEntity<? extends Object> blockedUser(@RequestParam String username,Principal principal){
+		return userServiceApi.blockedUser(username,principal);
 	}
 	
-	// end-point de suspition d'un utilisateur
-	@PostMapping("/suspend")
-	public HttpEntity<? extends Object> suspendedUser(@RequestParam String username){
-		return userServiceApi.suspendedUser(username);
+	@PutMapping("/resetPassword")
+	public HttpEntity<? extends Object> resetPassword(@RequestParam String username,@RequestParam String newPassword,
+			Principal principal){
+		return userServiceApi.resetPassword(username, newPassword, principal);
 	}
+
 }

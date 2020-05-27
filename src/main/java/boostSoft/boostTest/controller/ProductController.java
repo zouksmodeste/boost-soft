@@ -30,32 +30,32 @@ public class ProductController {
 	
 	// end-point de mis a jour d'un produit
 	@PutMapping("/update")
-	public HttpEntity<? extends Object> updateProduct(@RequestBody Product product){
-		return productServiceApi.updateProduct(product);
+	public HttpEntity<? extends Object> updateProduct(@RequestBody Product product, Principal principal){
+		return productServiceApi.updateProduct(product,principal);
 	}
 	
 	// end-point de recherche d'un produit
 	@GetMapping("/select")
-	public HttpEntity<? extends Object> findByTitle(@RequestParam String title){
-		return productServiceApi.findByTitle(title);
+	public HttpEntity<? extends Object> findByTitle(@RequestParam String title, Principal principal){
+		return productServiceApi.findByTitle(title,principal);
 	}
 	
 	// end-point de suppression d'un produit
 	@DeleteMapping("/delete")
-	public HttpEntity<? extends Object> deleteProduct(@RequestParam String title){
-		return productServiceApi.deleteProduct(title);
+	public HttpEntity<? extends Object> deleteProduct(@RequestParam String title, Principal principal){
+		return productServiceApi.deleteProduct(title, principal);
 	}
 	
 	// end-point pour la liste de tous les produits
 	@GetMapping("/products")
-	public HttpEntity<? extends Object> findAll(){
-		return productServiceApi.findAll();
+	public HttpEntity<? extends Object> findAll(Principal principal){
+		return productServiceApi.findAll(principal);
 	}
 	
 	// end-point de recherche de tous les produits crees par un utilisateur
 	@GetMapping("/owner")
-	public HttpEntity<? extends Object> findByOwner(@RequestParam String owner){
-		return productServiceApi.findByOwner(owner);
+	public HttpEntity<? extends Object> findByOwner(@RequestParam String owner, Principal principal){
+		return productServiceApi.findByOwner(owner,principal);
 	}
 	
 	// end-point de recherche des produits par ordre croissant de creation
@@ -72,12 +72,12 @@ public class ProductController {
 	
 	// end-point de recherche des produits ayant le meme prix
 	@GetMapping("/price")
-	public HttpEntity<? extends Object> findByPrice(@RequestParam float price){
-		return productServiceApi.findByPrice(price);
+	public HttpEntity<? extends Object> findByPrice(@RequestParam float price, Principal principal){
+		return productServiceApi.findByPrice(price, principal);
 	}
 	
 	@PostMapping("/increment")
-	public HttpEntity<? extends Object> incrementQuantityProduct(@RequestParam String title,@RequestParam int quantity){
-		return productServiceApi.incrementQuantityProduct(title, quantity);
+	public HttpEntity<? extends Object> incrementQuantityProduct(@RequestParam String title,@RequestParam int quantity, Principal principal){
+		return productServiceApi.incrementQuantityProduct(title, quantity, principal);
 	}
 }

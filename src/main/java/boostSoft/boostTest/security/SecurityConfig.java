@@ -28,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				
 				// ouverture des end-points d'enregistrement et de validation du compte
 
-					.antMatchers("/auth/register","/auth/validate","/auth/verifyaccount").permitAll()
+					.antMatchers("/auth/register","/auth/verifyaccount").permitAll()
 					.antMatchers("/auth/**","/product/**","/command/**")
 						.hasAnyRole("CUSTOMER")
 					.antMatchers("/admin/**")

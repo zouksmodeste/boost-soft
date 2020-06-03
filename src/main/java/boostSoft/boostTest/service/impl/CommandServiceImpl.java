@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import boostSoft.boostTest.data.Command;
 import boostSoft.boostTest.data.CommandStatus;
+import boostSoft.boostTest.data.CommandType;
 import boostSoft.boostTest.data.Product;
 import boostSoft.boostTest.data.ProductCommand;
 import boostSoft.boostTest.data.ProductStatus;
@@ -40,7 +41,7 @@ public class CommandServiceImpl implements CommandServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			}else {
-				if (command.getCommandType()==null || command.getCustomerPhone()==null || command.getProductCommand()==null) {
+				if (command.getProductCommand()==null) {
 					return new ResponseEntity<String>("Please enter informations in blank places", HttpStatus.BAD_REQUEST); // renvoie un message d'erreur avec une reponse http
 				}else {
 					float totalprice=0;
@@ -78,6 +79,7 @@ public class CommandServiceImpl implements CommandServiceApi {
 					}
 					
 					command.setTotalPrice(totalprice);
+					command.setCommandType(CommandType.VENTE);
 					command.setDateCreation(new Date());
 					command.setValidator(principal.getName());
 					command.setStatus(CommandStatus.TERMINE.getStatut());		// enregistrement de la commande

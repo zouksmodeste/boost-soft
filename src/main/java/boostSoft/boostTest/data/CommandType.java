@@ -2,7 +2,7 @@ package boostSoft.boostTest.data;
 
 public enum CommandType {
 
-	FACTURE("FACTURE");
+	VENTE("VENTE");
 	
 	private String statut;
 

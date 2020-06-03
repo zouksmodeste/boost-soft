@@ -1,6 +1,7 @@
 package boostSoft.boostTest.service.impl;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,41 +24,53 @@ import boostSoft.boostTest.service.api.ProductServiceApi;
 @Service
 public class ProductServiceImpl implements ProductServiceApi {
 
-	@Autowired
-	ProductRepository productRepository;
-	@Autowired
-	UserRepository userRepository;
-	@Autowired
-	StockRepository stockRepository;
+	@Autowired ProductRepository productRepository;
+	@Autowired UserRepository userRepository;
+	@Autowired StockRepository stockRepository;
 
 	@Override
 	public HttpEntity<? extends Object> createProduct(Product product, Principal principal) {
 		try {
-			User currentUser = userRepository.findByUserName(principal.getName());
-			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
-					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
-				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			} else {
-				if (product.getTitle() == null || product.getPrice() == 0) { 
-					return new ResponseEntity<String>("Please enter informations in blank places", HttpStatus.OK);
-				} else {
-					Product currentProduct = productRepository.save(product); 
-					Stock currentStock = new Stock();
-					Date date = new Date();
-					product.setOwner(principal.getName());
-					product.setDateCreation(date);
-					product.setStatus(ProductStatus.DISPONIBLE.getStatut()); 
-					product.setStock(currentStock);
-					productRepository.saveAndFlush(currentProduct); 
-
-					currentStock.setQuantity(0);
-					currentStock.setDateCreation(date);
-					currentStock.setProduct(currentProduct);
-					stockRepository.saveAndFlush(currentStock);
-
-					return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
+			boolean isExist = false;
+			List<Product> currentProducts = productRepository.findAll();
+			for (Product product2 : currentProducts) {
+				if (product2.getTitle().equalsIgnoreCase(product.getTitle())) {
+					isExist=true;
+					break;
 				}
 			}
+			
+			if (isExist) {
+				return new ResponseEntity<String>("couldn't create another product with same title", HttpStatus.ACCEPTED);
+			}else {
+				User currentUser = userRepository.findByUserName(principal.getName());
+				if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
+						|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
+					return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
+				} else {
+					if (product.getTitle() == null) { 
+						return new ResponseEntity<String>("Please enter informations in blank places (title)", HttpStatus.OK);
+					} else {
+						Product currentProduct = productRepository.save(product); 
+						Stock currentStock = new Stock();
+						Date date = new Date();
+						product.setOwner(principal.getName());
+						product.setDateCreation(date);
+						product.setStatus(ProductStatus.DISPONIBLE.getStatut()); 
+						product.setStock(currentStock);
+						productRepository.saveAndFlush(currentProduct); 
+
+						currentStock.setQuantity(0);
+						currentStock.setDateCreation(date);
+						currentStock.setProduct(currentProduct);
+						stockRepository.saveAndFlush(currentStock);
+
+						return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
+					}
+				}
+			}
+			
+
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
@@ -72,13 +85,14 @@ public class ProductServiceImpl implements ProductServiceApi {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			}else {
 				Date date = new Date();
-				Product currentProduct = productRepository.findByTitle(product.getTitle());
+				Product currentProduct = productRepository.findById(product.getProductId()).get();
 				if (product.getTitle() != null || product.getPrice() != 0) { 
 															
 					currentProduct.setTitle(product.getTitle());
 					currentProduct.setDateCreation(date);
 					currentProduct.setPrice(product.getPrice()); 
 					currentProduct.setStatus(product.getStatus());
+					currentProduct.setOwner(principal.getName());
 
 					productRepository.saveAndFlush(currentProduct);
 					return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
@@ -129,12 +143,23 @@ public class ProductServiceImpl implements ProductServiceApi {
 	@Override
 	public HttpEntity<? extends Object> findAll(Principal principal) {
 		try {
+			Boolean IsDelete = false;
 			User currentUser = userRepository.findByUserName(principal.getName());
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			}else {
-				return new ResponseEntity<List<Product>>(productRepository.findAll(), HttpStatus.OK);
+				List<Product> listProducts = new ArrayList<>();
+				List<Product> products = productRepository.findAll();
+				for (Product product : products) {
+					if (product.getStatus().equalsIgnoreCase(ProductStatus.DELETED.getStatut())) {
+						IsDelete=true;
+					}else {
+						IsDelete=false;
+						listProducts.add(product);
+					}
+				}
+				return new ResponseEntity<List<Product>>(listProducts, HttpStatus.OK);
 			} 
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
@@ -200,7 +225,7 @@ public class ProductServiceImpl implements ProductServiceApi {
 				Product currentProduct = productRepository.findByTitle(title);
 				Stock currentStock = stockRepository.findById(currentProduct.getStock().getStockId()).get();
 
-				currentProduct.getStock().setQuantity(quantity);
+				currentProduct.getStock().setQuantity(quantity+currentProduct.getStock().getQuantity());
 				currentProduct.setStock(currentStock);
 				productRepository.saveAndFlush(currentProduct);
 				stockRepository.saveAndFlush(currentStock);

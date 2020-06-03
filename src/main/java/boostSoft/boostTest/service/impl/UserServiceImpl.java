@@ -24,15 +24,37 @@ public class UserServiceImpl implements UserServiceApi {
 	@Override
 	public HttpEntity<? extends Object> create(User user) {
 		try {
-			// enregistrement d'un utilisateur
-			user.setUserType(user.getUserType());
-			user.setUserStatus(UserStatus.VALID.getStatut());
-			user.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
-			User currentUser = userRepository.save(user);
-			return new ResponseEntity<User>(currentUser, HttpStatus.OK); // renvoie l'utilisateur enregistre avec un
-																			// code http
+			boolean isExist = false;
+			List<User> currentUsers = userRepository.findAll();
+			for (User user2 : currentUsers) {
+				if (user2.getUserName().equalsIgnoreCase(user.getUserName()) || user2.getPhoneNumber().equalsIgnoreCase(user.getPhoneNumber())) {
+					isExist = true;
+					break;
+				}
+			}
+			if(isExist) {
+				return new ResponseEntity<String>("Could not create another user with same username or phone number", HttpStatus.ACCEPTED);
+			}else {
+				if (user.getUserName()==null || user.getPhoneNumber()==null) {
+					return new ResponseEntity<String>("Please enter informations in blank place (username or phone number)", HttpStatus.ACCEPTED);
+				}else {
+					// enregistrement d'un utilisateur
+					user.setUserType(user.getUserType());
+					user.setUserStatus(UserStatus.VALID.getStatut());
+					user.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
+					User currentUser = userRepository.save(user);
+					return new ResponseEntity<User>(currentUser, HttpStatus.OK);
+				}
+
+			}
+			
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			/*Map<String, Object> result = new HashMap<>();
+			result.put("message", "internal server error");
+			result.put("value", "");
+			result.put("code", "0");
+			return result;*/
 		}
 	}
 
@@ -45,15 +67,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findByUserName(username); // recherche de l'utilisateur
-				currentUser1.setUserStatus(UserStatus.DELETED.getStatut()); // mise a jour du statut de l'utilisateur
-				userRepository.saveAndFlush(currentUser1); // mise a jour de l'utilisateur en base de donnees
+				User currentUser1 = userRepository.findByUserName(username); 
+				currentUser1.setUserStatus(UserStatus.DELETED.getStatut()); 
+				userRepository.saveAndFlush(currentUser1); 
 				return new ResponseEntity<User>(currentUser1, HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -68,9 +88,7 @@ public class UserServiceImpl implements UserServiceApi {
 				return new ResponseEntity<User>(userRepository.findByUserName(username), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -82,7 +100,7 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(user.getUserId()).get(); // recherche de l'utilisateur
+				User currentUser1 = userRepository.findById(user.getUserId()).get(); 
 				if (currentUser1.getName().equalsIgnoreCase(user.getName())
 						&& currentUser1.getStore().equalsIgnoreCase(user.getStore())
 						&& currentUser1.getMail().equalsIgnoreCase(user.getMail())
@@ -104,9 +122,7 @@ public class UserServiceImpl implements UserServiceApi {
 				}
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -118,16 +134,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(userId).get(); // recherche de l'utilisateur
-				currentUser1.setName(name); // mis a jour du nouveau nom de l'utilisateur
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setName(name); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -139,16 +152,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(userId).get(); // recherche de l'utilisateur
-				currentUser1.setUserName(username); // mis a jour du nouveau nom d'utilisateur
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setUserName(username); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -160,25 +170,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(userId).get(); // recherche de l'utilisateur
-				currentUser1.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(password)); // mis
-																														// a
-																														// jour
-																														// du
-																														// nouveau
-																														// mot
-																														// de
-																														// passe
-																														// de
-																														// l'utilisateur
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(password)); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -190,16 +188,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(userId).get(); // recherche de l'utilisateur
-				currentUser1.setMail(mail); // mis a jour du mail utilisateur
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setMail(mail); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -211,82 +206,62 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findById(userId).get(); // recherche de l'utilisateur
-				currentUser1.setPhoneNumber(phonenumber); // mis a jour du nouveau contact
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setPhoneNumber(phonenumber); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
 	@Override
 	public HttpEntity<? extends Object> login(Principal principal) {
 		try {
-			User currentUser = userRepository.findByUserName(principal.getName()); // recherche de l'utilisateur
+			User currentUser = userRepository.findByUserName(principal.getName()); 
 			if (!(currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut()))
-					&& !(currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut()))) { // verification
-																											// si
-																											// l'utilisateur
-																											// est
-																											// valide et
-																											// non
-																											// bloque
+					&& !(currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut()))) { 
 
-				currentUser.setUserStatus(UserStatus.SIGNEDIN.getStatut()); // mis a jour du status de l'utilisateur
-				userRepository.saveAndFlush(currentUser); // mis a jour de l'utilisateur en base de donnees
-				return new ResponseEntity<User>(currentUser, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				currentUser.setUserStatus(UserStatus.SIGNEDIN.getStatut()); 
+				userRepository.saveAndFlush(currentUser); 
+				return new ResponseEntity<User>(currentUser, HttpStatus.OK); 
 			} else {
-				// l'utilisateur est bloque OU SUPPRIMER donc acces interdit
-
 				return new ResponseEntity<String>(
 						"you are not allowed to acces this system contact Boost Soft for more details",
-						HttpStatus.FORBIDDEN); // renvoie une chaine de caractere couple avec une reponse http
+						HttpStatus.FORBIDDEN); 
 			}
-
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
 	@Override
 	public HttpEntity<? extends Object> findAll(Principal principal) {
 		try {
-			List<User> currentUsers = userRepository.findAll(); // recherche de tous les utilisateurs en base de donnees
+			List<User> currentUsers = userRepository.findAll(); 
 			User currentUser = userRepository.findByUserName(principal.getName());
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				return new ResponseEntity<List<User>>(currentUsers, HttpStatus.OK); // renvoie une liste d'utilisateurs
-																					// avec un code http
+				return new ResponseEntity<List<User>>(currentUsers, HttpStatus.OK); 
 			}
 
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
 	@Override
 	public HttpEntity<? extends Object> logout(Principal principal) {
 		try {
-			User currentUser = userRepository.findByUserName(principal.getName()); // recherche de l'utilisateur
-			currentUser.setUserStatus(UserStatus.SIGNEDOUT.getStatut()); // changement du status de l'utilisateur
-			userRepository.saveAndFlush(currentUser); // mis a jour de l'utilisateur dans la base de donnees
-			return new ResponseEntity<User>(currentUser, HttpStatus.OK); // renvoie de l'utilisateur avec un code http
+			User currentUser = userRepository.findByUserName(principal.getName()); 
+			currentUser.setUserStatus(UserStatus.SIGNEDOUT.getStatut()); 
+			userRepository.saveAndFlush(currentUser); 
+			return new ResponseEntity<User>(currentUser, HttpStatus.OK); 
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -298,15 +273,11 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				List<User> currentUsers = userRepository.findByName(name); // recherche des utilisateurs ayant le meme
-																			// nom
-				return new ResponseEntity<List<User>>(currentUsers, HttpStatus.OK); // renvoie une liste d'utilisateurs
-																					// avec un code http
+				List<User> currentUsers = userRepository.findByName(name); 
+				return new ResponseEntity<List<User>>(currentUsers, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 
@@ -318,16 +289,13 @@ public class UserServiceImpl implements UserServiceApi {
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
-				User currentUser1 = userRepository.findByUserName(username); // rechercher de l'utilisateur
-				currentUser1.setUserStatus(UserStatus.BLOCKED.getStatut()); // mis a jour du status de l'utilisateur
-				userRepository.saveAndFlush(currentUser1); // mis a jour de l'utilisateur dans la base de donnees
-				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); // renvoie de l'utilisateur avec un code
-																				// http
+				User currentUser1 = userRepository.findByUserName(username); 
+				currentUser1.setUserStatus(UserStatus.BLOCKED.getStatut()); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // renvoie d'un message
-																									// d'erreur avec un
-																									// code http
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 

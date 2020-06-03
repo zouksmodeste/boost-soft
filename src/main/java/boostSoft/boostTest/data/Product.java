@@ -30,7 +30,6 @@ public class Product {
 	private String status;
 	private String owner;
 	
-	@JsonIgnore
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	private Stock stock;
 	

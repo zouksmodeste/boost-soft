@@ -25,7 +25,7 @@
 
 //COMMAND
 {
-  	"commandType":"FACTURE",
+  	"commandType":"VENTE",
 	"customerPhone":"690909090",
 	"productCommand":[{
 	"quantityOrdered":10,

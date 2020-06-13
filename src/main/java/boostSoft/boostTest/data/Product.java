@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -29,9 +28,7 @@ public class Product {
 	private Date dateCreation;
 	private String status;
 	private String owner;
-	
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-	private Stock stock;
+	private int quantity;
 	
 	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JsonIgnore
@@ -41,8 +38,8 @@ public class Product {
 		super();
 	}
 
-	public Product(Long productId, String title, float price, Date dateCreation, String status,
-			String owner, Stock stock, List<ProductCommand> productCommand) {
+	public Product(Long productId, String title, float price, Date dateCreation, String status, String owner,
+			int quantity, List<ProductCommand> productCommand) {
 		super();
 		this.productId = productId;
 		this.title = title;
@@ -50,7 +47,7 @@ public class Product {
 		this.dateCreation = dateCreation;
 		this.status = status;
 		this.owner = owner;
-		this.stock = stock;
+		this.quantity = quantity;
 		this.productCommand = productCommand;
 	}
 
@@ -102,12 +99,12 @@ public class Product {
 		this.owner = owner;
 	}
 
-	public Stock getStock() {
-		return stock;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setStock(Stock stock) {
-		this.stock = stock;
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 	public List<ProductCommand> getProductCommand() {
@@ -127,8 +124,8 @@ public class Product {
 		result = prime * result + Float.floatToIntBits(price);
 		result = prime * result + ((productCommand == null) ? 0 : productCommand.hashCode());
 		result = prime * result + ((productId == null) ? 0 : productId.hashCode());
+		result = prime * result + quantity;
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((stock == null) ? 0 : stock.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -164,15 +161,12 @@ public class Product {
 				return false;
 		} else if (!productId.equals(other.productId))
 			return false;
+		if (quantity != other.quantity)
+			return false;
 		if (status == null) {
 			if (other.status != null)
 				return false;
 		} else if (!status.equals(other.status))
-			return false;
-		if (stock == null) {
-			if (other.stock != null)
-				return false;
-		} else if (!stock.equals(other.stock))
 			return false;
 		if (title == null) {
 			if (other.title != null)
@@ -184,8 +178,10 @@ public class Product {
 
 	@Override
 	public String toString() {
-		return "Product [productId=" + productId + ", title=" + title + ", price=" + price
-				+ ", dateCreation=" + dateCreation + ", status=" + status + ", owner=" + owner + ", stock=" + stock
+		return "Product [productId=" + productId + ", title=" + title + ", price=" + price + ", dateCreation="
+				+ dateCreation + ", status=" + status + ", owner=" + owner + ", quantity=" + quantity
 				+ ", productCommand=" + productCommand + "]";
 	}
+
+	
 }

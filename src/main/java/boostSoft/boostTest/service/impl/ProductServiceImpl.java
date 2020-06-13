@@ -13,20 +13,19 @@ import org.springframework.stereotype.Service;
 
 import boostSoft.boostTest.data.Product;
 import boostSoft.boostTest.data.ProductStatus;
-import boostSoft.boostTest.data.Stock;
 import boostSoft.boostTest.data.User;
 import boostSoft.boostTest.data.UserStatus;
 import boostSoft.boostTest.repository.ProductRepository;
-import boostSoft.boostTest.repository.StockRepository;
 import boostSoft.boostTest.repository.UserRepository;
 import boostSoft.boostTest.service.api.ProductServiceApi;
 
 @Service
 public class ProductServiceImpl implements ProductServiceApi {
 
-	@Autowired ProductRepository productRepository;
-	@Autowired UserRepository userRepository;
-	@Autowired StockRepository stockRepository;
+	@Autowired
+	ProductRepository productRepository;
+	@Autowired
+	UserRepository userRepository;
 
 	@Override
 	public HttpEntity<? extends Object> createProduct(Product product, Principal principal) {
@@ -35,44 +34,38 @@ public class ProductServiceImpl implements ProductServiceApi {
 			List<Product> currentProducts = productRepository.findAll();
 			for (Product product2 : currentProducts) {
 				if (product2.getTitle().equalsIgnoreCase(product.getTitle())) {
-					isExist=true;
+					isExist = true;
 					break;
 				}
 			}
-			
+
 			if (isExist) {
-				return new ResponseEntity<String>("couldn't create another product with same title", HttpStatus.ACCEPTED);
-			}else {
+				return new ResponseEntity<String>("couldn't create another product with same title",
+						HttpStatus.ACCEPTED);
+			} else {
 				User currentUser = userRepository.findByUserName(principal.getName());
 				if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 						|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 					return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 				} else {
-					if (product.getTitle() == null) { 
-						return new ResponseEntity<String>("Please enter informations in blank places (title)", HttpStatus.OK);
+					if (product.getTitle() == null) {
+						return new ResponseEntity<String>("Please enter informations in blank places (title)",
+								HttpStatus.OK);
 					} else {
-						Product currentProduct = productRepository.save(product); 
-						Stock currentStock = new Stock();
+						Product currentProduct = productRepository.save(product);
 						Date date = new Date();
 						product.setOwner(principal.getName());
 						product.setDateCreation(date);
-						product.setStatus(ProductStatus.DISPONIBLE.getStatut()); 
-						product.setStock(currentStock);
-						productRepository.saveAndFlush(currentProduct); 
+						product.setStatus(ProductStatus.DISPONIBLE.getStatut());
+						product.setQuantity(product.getQuantity());
+						productRepository.saveAndFlush(currentProduct);
 
-						currentStock.setQuantity(0);
-						currentStock.setDateCreation(date);
-						currentStock.setProduct(currentProduct);
-						stockRepository.saveAndFlush(currentStock);
-
-						return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
+						return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
 					}
 				}
 			}
-			
-
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -83,26 +76,18 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
+			} else {
 				Date date = new Date();
 				Product currentProduct = productRepository.findById(product.getProductId()).get();
-				if (product.getTitle() != null || product.getPrice() != 0) { 
-															
-					currentProduct.setTitle(product.getTitle());
-					currentProduct.setDateCreation(date);
-					currentProduct.setPrice(product.getPrice()); 
-					currentProduct.setStatus(product.getStatus());
-					currentProduct.setOwner(principal.getName());
-
-					productRepository.saveAndFlush(currentProduct);
-					return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
-				} else {
-					return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
-				}
-			}
-			
+				if (!product.getTitle().isEmpty()) currentProduct.setTitle(product.getTitle()); 
+				if (!product.getOwner().isEmpty()) currentProduct.setOwner(product.getOwner());
+				if (!product.getStatus().isEmpty()) currentProduct.setStatus(product.getStatus());
+				if (!product.getPrice().isEmpty()) currentProduct.setPrice(product.getPrice());
+				productRepository.saveAndFlush(currentProduct);
+				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
+				} 
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -113,30 +98,30 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
-				Product currentProduct = productRepository.findByTitle(title); 
-				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
+			} else {
+				Product currentProduct = productRepository.findByTitle(title);
+				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
-	public HttpEntity<? extends Object> deleteProduct(String title,Principal principal) {
+	public HttpEntity<? extends Object> deleteProduct(String title, Principal principal) {
 		try {
 			User currentUser = userRepository.findByUserName(principal.getName());
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
-				Product currentProduct = productRepository.findByTitle(title); 
-				currentProduct.setStatus(ProductStatus.DELETED.getStatut()); 
-				productRepository.saveAndFlush(currentProduct); 
-				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK); 
+			} else {
+				Product currentProduct = productRepository.findByTitle(title);
+				currentProduct.setStatus(ProductStatus.DELETED.getStatut());
+				productRepository.saveAndFlush(currentProduct);
+				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -148,21 +133,21 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
+			} else {
 				List<Product> listProducts = new ArrayList<>();
 				List<Product> products = productRepository.findAll();
 				for (Product product : products) {
 					if (product.getStatus().equalsIgnoreCase(ProductStatus.DELETED.getStatut())) {
-						IsDelete=true;
-					}else {
-						IsDelete=false;
+						IsDelete = true;
+					} else {
+						IsDelete = false;
 						listProducts.add(product);
 					}
 				}
 				return new ResponseEntity<List<Product>>(listProducts, HttpStatus.OK);
-			} 
+			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -173,29 +158,29 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
+			} else {
 				return new ResponseEntity<List<Product>>(productRepository.findByOwner(owner), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
 	public HttpEntity<? extends Object> findByOrderByDateCreationDesc() {
 		try {
-			return new ResponseEntity<List<Product>>(productRepository.findByOrderByDateCreationDesc(), HttpStatus.OK); 
+			return new ResponseEntity<List<Product>>(productRepository.findByOrderByDateCreationDesc(), HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@Override
 	public HttpEntity<? extends Object> findByOrderByDateCreationAsc() {
 		try {
-			return new ResponseEntity<List<Product>>(productRepository.findByOrderByDateCreationAsc(), HttpStatus.OK); 
+			return new ResponseEntity<List<Product>>(productRepository.findByOrderByDateCreationAsc(), HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -206,11 +191,11 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
+			} else {
 				return new ResponseEntity<List<Product>>(productRepository.findByPrice(price), HttpStatus.OK);
-			} 
+			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -221,19 +206,15 @@ public class ProductServiceImpl implements ProductServiceApi {
 			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
 					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
-			}else {
+			} else {
 				Product currentProduct = productRepository.findByTitle(title);
-				Stock currentStock = stockRepository.findById(currentProduct.getStock().getStockId()).get();
-
-				currentProduct.getStock().setQuantity(quantity+currentProduct.getStock().getQuantity());
-				currentProduct.setStock(currentStock);
+				currentProduct.setQuantity(quantity + currentProduct.getQuantity());
 				productRepository.saveAndFlush(currentProduct);
-				stockRepository.saveAndFlush(currentStock);
 
 				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

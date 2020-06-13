@@ -77,6 +77,11 @@ public class UserController {
 		return userServiceApi.updatePhoneNumber(userId, phonenumber,principal);
 	}
 	
+	@PutMapping("/store")
+	public HttpEntity<? extends Object> updateStore(@RequestParam int userId,@RequestParam String store,Principal principal){
+		return userServiceApi.updateStore(userId, store, principal);
+	}
+	
 	// end-point de recherche de tous les utilisateurs
 	@GetMapping("/users")
 	public HttpEntity<? extends Object> findAll(Principal principal){

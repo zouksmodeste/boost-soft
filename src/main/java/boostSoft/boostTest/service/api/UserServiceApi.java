@@ -20,6 +20,7 @@ public interface UserServiceApi {
 	public abstract HttpEntity<? extends Object> updatePassWord(int userId, String password, Principal principal);
 	public abstract HttpEntity<? extends Object> updateMail(int userId, String mail,Principal principal);
 	public abstract HttpEntity<? extends Object> updatePhoneNumber(int userId, String phonenumber,Principal principal);
+	public abstract HttpEntity<? extends Object> updateStore(int userId, String store,Principal principal);
 	public abstract HttpEntity<? extends Object> login(Principal principal);
 	public abstract HttpEntity<? extends Object> logout(Principal principal);
 	public abstract HttpEntity<? extends Object> findByName(String name, Principal principal);

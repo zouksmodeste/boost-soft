@@ -53,14 +53,14 @@ public class CommandServiceImpl implements CommandServiceApi {
 						
 						Product currentProduct = productRepository.findById(productCommand.getProduct().getProductId()).get(); // recuperation du produit en base de donnees
 						
-						if (productCommand.getQuantityOrdered() <= currentProduct.getStock().getQuantity()) { // comparaison entre la quantite de produits commande et celle en stock
+						if (productCommand.getQuantityOrdered() <= currentProduct.getQuantity()) { // comparaison entre la quantite de produits commande et celle en stock
 							productCommand.setAvailableQuantity(productCommand.getQuantityOrdered());   // mise a jour de la quantite valide de produit commande par la quantite commande
 							realState.add(productCommand);												// ajout du produit a la nouvelle liste
 							price = productCommand.getAvailableQuantity()*productCommand.getProduct().getPrice(); // calcule du prix d'un produit en fonction de sa quantite commandee
 							
 						} else {
 							productCommand.setAvailableQuantity(
-									productRepository.findByTitle(productCommand.getProduct().getTitle()).getStock().getQuantity());  // mise a jour de la quantite valide de produit commande par la quantite en stock
+									productRepository.findByTitle(productCommand.getProduct().getTitle()).getQuantity());  // mise a jour de la quantite valide de produit commande par la quantite en stock
 							realState.add(productCommand);												// ajout du produit a la nouvelle liste	
 							price = productCommand.getAvailableQuantity()*productCommand.getProduct().getPrice(); // calcule du prix d'un produit en fonction de sa quantite commandee
 							
@@ -71,7 +71,7 @@ public class CommandServiceImpl implements CommandServiceApi {
 							
 						}
 						
-						currentProduct.getStock().setQuantity(currentProduct.getStock().getQuantity() - productCommand.getAvailableQuantity()); // reduit la quantite de produit commande en base de donnees
+						currentProduct.setQuantity(currentProduct.getQuantity() - productCommand.getAvailableQuantity()); // reduit la quantite de produit commande en base de donnees
 						productRepository.saveAndFlush(currentProduct);
 						
 						totalprice = totalprice + price; // calcule du prix total de la commande

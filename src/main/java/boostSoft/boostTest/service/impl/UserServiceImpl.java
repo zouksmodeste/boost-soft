@@ -101,25 +101,11 @@ public class UserServiceImpl implements UserServiceApi {
 				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
 			} else {
 				User currentUser1 = userRepository.findById(user.getUserId()).get(); 
-				if (currentUser1.getName().equalsIgnoreCase(user.getName())
-						&& currentUser1.getStore().equalsIgnoreCase(user.getStore())
-						&& currentUser1.getMail().equalsIgnoreCase(user.getMail())
-						&& currentUser1.getPhoneNumber().equalsIgnoreCase(user.getPhoneNumber())
-						&& currentUser1.getUserName().equalsIgnoreCase(user.getUserName())
-						&& currentUser1.getUserType().equals(user.getUserType())
-						&& currentUser1.getPassWord().equalsIgnoreCase(user.getPassWord())) {
-					return new ResponseEntity<User>(currentUser1, HttpStatus.OK);
-				} else {
-					currentUser1.setName(user.getName());
-					currentUser1.setStore(user.getStore());
-					currentUser1.setMail(user.getMail());
-					currentUser1.setPhoneNumber(user.getPhoneNumber());
-					currentUser1.setUserName(user.getUserName());
-					currentUser1.setUserType(user.getUserType());
-					currentUser1.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
+					if(!user.getName().isEmpty()) currentUser1.setName(user.getName());
+					if(!user.getMail().isEmpty()) currentUser1.setMail(user.getMail());
+					if(!user.getPassWord().isEmpty()) currentUser1.setPassWord(PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(user.getPassWord()));
 					userRepository.saveAndFlush(currentUser1);
 					return new ResponseEntity<User>(currentUser1, HttpStatus.OK);
-				}
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
@@ -314,6 +300,24 @@ public class UserServiceImpl implements UserServiceApi {
 			}
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Override
+	public HttpEntity<? extends Object> updateStore(int userId, String store, Principal principal) {
+		try {
+			User currentUser = userRepository.findByUserName(principal.getName());
+			if (currentUser.getUserStatus().equalsIgnoreCase(UserStatus.BLOCKED.getStatut())
+					|| currentUser.getUserStatus().equalsIgnoreCase(UserStatus.DELETED.getStatut())) {
+				return new ResponseEntity<String>("this user are not allowed", HttpStatus.ACCEPTED);
+			} else {
+				User currentUser1 = userRepository.findById(userId).get(); 
+				currentUser1.setStore(store); 
+				userRepository.saveAndFlush(currentUser1); 
+				return new ResponseEntity<User>(currentUser1, HttpStatus.OK); 
+			}
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); 
 		}
 	}
 

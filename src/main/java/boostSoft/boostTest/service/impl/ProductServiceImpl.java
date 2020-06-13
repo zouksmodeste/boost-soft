@@ -82,7 +82,9 @@ public class ProductServiceImpl implements ProductServiceApi {
 				if (!product.getTitle().isEmpty()) currentProduct.setTitle(product.getTitle()); 
 				if (!product.getOwner().isEmpty()) currentProduct.setOwner(product.getOwner());
 				if (!product.getStatus().isEmpty()) currentProduct.setStatus(product.getStatus());
-				if (product.getPrice()!=currentProduct.getPrice()) currentProduct.setPrice(product.getPrice());
+				if (!(product.getPrice()+"").isEmpty()) currentProduct.setPrice(product.getPrice());
+				if (!(product.getQuantity()+"").isEmpty()) currentProduct.setQuantity(product.getQuantity()+currentProduct.getQuantity());
+				
 				productRepository.saveAndFlush(currentProduct);
 				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);
 				} 

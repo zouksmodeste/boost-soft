@@ -84,6 +84,7 @@ public class ProductServiceImpl implements ProductServiceApi {
 				if (!product.getStatus().isEmpty()) currentProduct.setStatus(product.getStatus());
 				if (product.getPrice()!=0) currentProduct.setPrice(product.getPrice());
 				if (!(product.getQuantity()+"").isEmpty()) currentProduct.setQuantity(product.getQuantity()+currentProduct.getQuantity());
+				currentProduct.setDateCreation(date);
 				
 				productRepository.saveAndFlush(currentProduct);
 				return new ResponseEntity<Product>(currentProduct, HttpStatus.OK);

@@ -49,6 +49,7 @@ public class ProductController {
 	// end-point pour la liste de tous les produits
 	@GetMapping("/products")
 	public HttpEntity<? extends Object> findAll(Principal principal){
+		System.err.println("request");
 		return productServiceApi.findAll(principal);
 	}
 	
